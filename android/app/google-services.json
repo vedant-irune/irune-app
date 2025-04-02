@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "67600694131",
+    "project_id": "irune-57f92",
+    "storage_bucket": "irune-57f92.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67600694131:android:9a215b7dc374389bc32306",
+        "android_client_info": {
+          "package_name": "com.irune"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "67600694131-0dv5s727343e820ubr5gphppeq7gnir9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWpBweCbZUzPx4wJt03IzrOFwuXYN5zIk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "67600694131-0dv5s727343e820ubr5gphppeq7gnir9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
