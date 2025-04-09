@@ -1,4 +1,5 @@
 // This is a new file
+// Additional Comment
 import React, { useState, useEffect } from 'react';
 import {
   View,
