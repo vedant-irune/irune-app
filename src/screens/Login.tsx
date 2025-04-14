@@ -1,20 +1,7 @@
-//new comments added
-
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  TextInput,
-  Text,
-  TouchableOpacity,
-  Alert,
-  Image,
-  StyleSheet,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-} from 'react-native';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { View, TextInput, Text, TouchableOpacity, Alert, Image, StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { WEB_ID } from '@env';
 
 const Login = ({ navigation }) => {
@@ -22,42 +9,56 @@ const Login = ({ navigation }) => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: '',
+      webClientId: WEB_ID,
     });
   }, []);
 
-  const googleSignIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(googleCredential);
-
-      Alert.alert('Success', 'Google Sign-In successful');
-      navigation.replace('Home');
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
-
-          const errorMessage = error?.message || 'Google Sign-In failed';
-          Alert.alert('Error', errorMessage);
-    }
-  };
-
-  const handleContinue = async () => {
-    if (phoneNumber.length === 10) {
+  const onGoogleButtonPress = async () => {
       try {
-        const fullPhoneNumber = `+91${phoneNumber}`;
-        const confirmation = await auth().signInWithPhoneNumber(fullPhoneNumber);
-        navigation.navigate('OtpScreen', { confirmation, phoneNumber });
+        await GoogleSignin.signOut();
+
+        await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+        const signInResult = await GoogleSignin.signIn();
+        let idToken = signInResult.idToken || signInResult.data?.idToken;
+
+        if (!idToken) {
+          throw new Error('No ID token found');
+        }
+
+        const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+        await auth().signInWithCredential(googleCredential);
+
+        Alert.alert('Success', 'Google Sign-In successful');
+        navigation.replace('Home');
       } catch (error) {
-        console.error('signInWithPhoneNumber Error:', error);
-        const errorMessage = error.message || 'Failed to send OTP. Try again.';
-        Alert.alert('Error', errorMessage);
+        console.error('Google Sign-In Error:', JSON.stringify(error, null, 2));
+
+        let message = 'Google Sign-In failed. Please try again.';
+        if (typeof error === 'object' && error !== null) {
+          message = error.message || message;
+        }
+
+        Alert.alert('Error', message);
       }
-    } else {
-      Alert.alert('Invalid Number', 'Please enter a valid 10-digit phone number.');
-    }
-  };
+    };
+
+  const handleContinue = () => {
+      if (phoneNumber.length !== 10) {
+        Alert.alert('Invalid Number', 'Please enter a valid 10-digit phone number');
+        return;
+      }
+
+      auth()
+        .signInWithPhoneNumber(`+91${phoneNumber}`)
+        .then((confirmation) => {
+          navigation.navigate('OtpScreen', { confirmation, phoneNumber });
+        })
+        .catch((error) => {
+          console.error('OTP Error:', error);
+          Alert.alert('Error', 'Failed to send OTP. Please try again.');
+        });
+    };
 
 return (
     <KeyboardAvoidingView
@@ -66,7 +67,7 @@ return (
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={styles.topHalf}>
-          {/* <Image source={require('../assets/loginImage.png')} style={styles.topImage} /> */}
+          <Image source={require('../assets/loginImage.png')} style={styles.topImage} />
         </View>
 
         <View style={styles.bottomHalf}>
@@ -80,7 +81,7 @@ return (
 
           <View style={styles.phoneInputContainer}>
             <View style={styles.flagBox}>
-              {/* <Image source={require('../assets/indiaFlag.png')} style={styles.flag} /> */}
+              <Image source={require('../assets/indiaFlag.png')} style={styles.flag} />
             </View>
 
             <View style={styles.phoneNumberBox}>
@@ -101,10 +102,8 @@ return (
           </TouchableOpacity>
 
           <Text style={styles.orText}>OR</Text>
-
-          <TouchableOpacity style={styles.googleButton} activeOpacity={0.6} onPress={googleSignIn}>
-          <Text> Here </Text>
-            {/* <Image source={require('../assets/googleLogo.png')} style={styles.googleLogo} /> */}
+            <TouchableOpacity style={styles.googleButton} activeOpacity={0.6} onPress={onGoogleButtonPress}>
+            <Image source={require('../assets/googleLogo.png')} style={styles.googleLogo} />
           </TouchableOpacity>
         </View>
       </ScrollView>
